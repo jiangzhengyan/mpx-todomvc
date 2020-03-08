@@ -1,0 +1,82 @@
+<template>
+<view>todos标题</view>
+  <input type="text" wx:model="{{inputValue}}" bindconfirm="handleInputConfirm"/>
+  <button bindtap="toggleAll(!isAllDone)">标记所以已完成</button>
+  <view wx:for="{{filterTodo}}">
+    <button style="display: inline-block" bindtap="handleTap(index)">切换</button>
+    {{item.text}} - {{item.done ? '已完成' : '未完成'}}
+    <button style="display: inline-block" bindtap="handleTapDelete(index)">删除</button>
+
+
+  </view>
+  <view>
+    <view>还有{{remainCount}}项剩余</view>
+    <button wx:if="{{todos.length >remainCount}}"  bindtap="deleteAllDone">清除剩余已完成</button>
+
+
+  </view>
+  <view>
+    <button style="display: inline-block" bindtap="setVisibilitys('all')">全  部</button>
+    <button style="display: inline-block" bindtap="setVisibilitys('active')">未完成</button>
+    <button style="display: inline-block" bindtap="setVisibilitys('complete')">已完成</button>
+  </view>
+
+</template>
+
+<script>
+  import { createPage } from '@mpxjs/core'
+  import store from "../store";
+  const filter = {
+    all : todos=> todos,
+    active : todos=>todos.filter(item=>!item.done),
+    complete : todos=>todos.filter(item=>item.done)
+  }
+
+  createPage({
+    onLoad () {},
+    data :{
+      inputValue:11,
+      visibilty:'all'
+    },
+    methods :{
+      ...store.mapMutations(['addTodo','toggleTodo','deleteTodo','toggleAll','deleteAllDone']),
+      handleInputConfirm(){
+        console.log(this.inputValue,);
+        this.addTodo(this.inputValue)
+        this.inputValue=''
+      },
+      handleTap(index){
+        this.toggleTodo(index)
+      },
+      handleTapDelete(index){
+        this.deleteTodo(index)
+      },
+      setVisibilitys(i){
+
+        this.visibilty=i
+      }
+    },
+    computed:{
+      ...store.mapState(['todos']),
+      filterTodo (){
+
+        return filter[this.visibilty](this.todos)
+      },
+      remainCount(){
+        return filter['active'](this.todos).length
+
+      },
+      isAllDone (){
+        return this.todos.every(item =>item.done)
+      }
+    }
+  })
+</script>
+
+<script type="application/json">
+  {
+    "usingComponents": {
+      "list": "../components/list"
+    }
+  }
+</script>

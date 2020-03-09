@@ -2,7 +2,7 @@
 <view>todos标题</view>
   <input type="text" wx:model="{{inputValue}}" bindconfirm="handleInputConfirm"/>
   <button bindtap="toggleAll(!isAllDone)">标记所以已完成</button>
-  <view wx:for="{{filterTodo}}">
+  <view wx:for="{{filterTodo}}" wx:key="index">
     <button style="display: inline-block" bindtap="handleTap(index)">切换</button>
     {{item.text}} - {{item.done ? '已完成' : '未完成'}}
     <button style="display: inline-block" bindtap="handleTapDelete(index)">删除</button>

@@ -1,73 +1,123 @@
 <template>
-<view>todos标题</view>
-  <input type="text" wx:model="{{inputValue}}" bindconfirm="handleInputConfirm"/>
-  <button bindtap="toggleAll(!isAllDone)">标记所以已完成</button>
-  <view wx:for="{{filterTodo}}" wx:key="index">
-    <button style="display: inline-block" bindtap="handleTap(index)">切换</button>
-    {{item.text}} - {{item.done ? '已完成' : '未完成'}}
-    <button style="display: inline-block" bindtap="handleTapDelete(index)">删除</button>
+  <view class="title">todos标题</view>
+  <view class="wrap">
+    <view class="input-wrap">
+      <input placeholder="请输入" class="input" type="text" wx:model="{{inputValue}}" bindconfirm="handleInputConfirm"/>
+      <van-checkbox value="{{isAllDone}}" class="toggle-all" bindtap="toggleAll(!isAllDone)"></van-checkbox>
+    </view>
+    <view class="todo-item" wx:for="{{filterTodo}}" wx:key="index">
+      <checkbox checked="{{item.done}}" class="todo-toggle" bindtap="handleTap(index)">切换</checkbox>
+      <view class="todo-text" wx:class="{{{complete:item.done}}}">
+        {{item.text}} - {{item.done ? '已完成' : '未完成'}}
+      </view>
+      <view class="todo-delete" bindtap="handleTapDelete(index)"></view>
 
+    </view>
 
-  </view>
-  <view>
-    <view>还有{{remainCount}}项剩余</view>
-    <button wx:if="{{todos.length >remainCount}}"  bindtap="deleteAllDone">清除剩余已完成</button>
+    <todo-footer visibilty="{{visibilty}}"
+     bindsetVb="setVisibilitys"
+    >
 
-
-  </view>
-  <view>
-    <button style="display: inline-block" bindtap="setVisibilitys('all')">全  部</button>
-    <button style="display: inline-block" bindtap="setVisibilitys('active')">未完成</button>
-    <button style="display: inline-block" bindtap="setVisibilitys('complete')">已完成</button>
+    </todo-footer>
   </view>
 
 </template>
+<style lang="stylus">
+  .title
+    font-size 80px
+    font-weight 100
+    text-align center
+    color rgba(175, 47, 47, 0.15)
 
+  .wrap
+    box-shadow 0 2px 4px 0 rgba(57, 159, 255, 0.48), 0 25px 50px 0 rgba(0, 0, 0, 0.1)
+
+    .todo-item
+      display flex
+      position: relative
+      border-top 1px solid #ededed
+
+      .todo-toggle
+        display inline-block
+        margin-top 12px
+        margin-left 10px
+      .complete
+        text-decoration line-through
+        color #999999
+
+      .todo-text
+        flex 1
+        padding 15px
+
+      .todo-delete
+        display block
+        flex 0
+
+        &:after
+          content '\D7'
+          color #af5b5e
+          font-size 30px
+          position: absolute
+          right: 20px
+          top 3px
+
+
+    .input-wrap
+      position: relative
+      .toggle-all
+        position absolute
+        top 14px
+        left 10px
+      .input
+        font-size 20px
+        padding 16px 16px 16px 50px
+        color #333
+        position relative
+        border none
+        background rgba(0, 0, 0, 0.003)
+
+
+</style>
 <script>
-  import { createPage } from '@mpxjs/core'
+  import {createPage} from '@mpxjs/core'
   import store from "../store";
-  const filter = {
-    all : todos=> todos,
-    active : todos=>todos.filter(item=>!item.done),
-    complete : todos=>todos.filter(item=>item.done)
-  }
+import {filter } from '../lib/util'
+
 
   createPage({
-    onLoad () {},
-    data :{
-      inputValue:11,
-      visibilty:'all'
+    onLoad() {
     },
-    methods :{
-      ...store.mapMutations(['addTodo','toggleTodo','deleteTodo','toggleAll','deleteAllDone']),
-      handleInputConfirm(){
+    data: {
+      inputValue: '',
+      visibilty: 'all'
+    },
+    methods: {
+      ...store.mapMutations(['addTodo', 'toggleTodo', 'deleteTodo', 'toggleAll', 'deleteAllDone']),
+      handleInputConfirm() {
         console.log(this.inputValue,);
         this.addTodo(this.inputValue)
-        this.inputValue=''
+        this.inputValue = ''
       },
-      handleTap(index){
+      handleTap(index) {
         this.toggleTodo(index)
       },
-      handleTapDelete(index){
+      handleTapDelete(index) {
         this.deleteTodo(index)
       },
-      setVisibilitys(i){
+      setVisibilitys(e) {
 
-        this.visibilty=i
+        this.visibilty = e.detail
       }
     },
-    computed:{
+    computed: {
       ...store.mapState(['todos']),
-      filterTodo (){
+      filterTodo() {
 
         return filter[this.visibilty](this.todos)
       },
-      remainCount(){
-        return filter['active'](this.todos).length
 
-      },
-      isAllDone (){
-        return this.todos.every(item =>item.done)
+      isAllDone() {
+        return this.todos.every(item => item.done)
       }
     }
   })
@@ -76,7 +126,8 @@
 <script type="application/json">
   {
     "usingComponents": {
-      "list": "../components/list"
+      "todo-footer": "../components/todo-footer",
+      "van-checkbox": "vant-weapp/dist/checkbox"
     }
   }
 </script>

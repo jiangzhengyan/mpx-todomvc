@@ -1,0 +1,76 @@
+<template>
+  <view class="footer">
+    <view class="info">
+      <view>还有{{remainCount}}项剩余</view>
+      <view wx:if="{{todos.length >remainCount}}" bindtap="deleteAllDone">清除剩余已完成</view>
+    </view>
+    <view class="filter">
+      <view wx:class="{{{active:visibilty==='all'}}}" class="filter-li" bindtap="setVisibilitys('all')">全 部</view>
+      <view  wx:class="{{{active:visibilty==='active'}}}" class="filter-li" bindtap="setVisibilitys('active')">未完成</view>
+      <view wx:class="{{{active:visibilty==='complete'}}}"  class="filter-li" bindtap="setVisibilitys('complete')">已完成</view>
+    </view>
+  </view>
+</template>
+
+<script>
+  import { createComponent } from '@mpxjs/core'
+  import {filter } from '../lib/util'
+  import store from "../store";
+
+
+  createComponent({
+    props:{
+      visibilty:{
+      type :"String",
+      default :  'all'
+      }
+    },
+    data: {
+
+    },
+    methods :{
+      setVisibilitys (visibilty){
+        this.triggerEvent('setVb',visibilty)
+      }
+    },
+    computed :{
+      ...store.mapState(['todos']),
+      remainCount() {
+        return filter['active'](this.todos).length
+
+      },
+    }
+  })
+</script>
+
+<style lang="stylus">
+  .footer
+    color #777
+    padding 10px
+    border-top 1px solid #e6e6e6
+    display flex
+    justify-content space-between
+
+    .info
+      font-size 14px
+
+    .filter
+      display flex
+
+      .filter-li
+        margin 0 10px
+        display inline-block
+        border 1px solid transparent
+        border-radius 5px
+
+      .active
+        border-color rgba(175,47,47,0.2)
+
+
+</style>
+
+<script type="application/json">
+  {
+    "component": true
+  }
+</script>
